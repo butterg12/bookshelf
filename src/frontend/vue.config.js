@@ -1,5 +1,6 @@
 module.exports = {
     outputDir: '../main/resources/static',
+
     devServer: {
         port: 3000,
         proxy: {
@@ -9,5 +10,9 @@ module.exports = {
                 changeOrigin: true
             }
         }
-    }
+    },
+
+    transpileDependencies: [
+      'vuetify'
+    ]
 }
