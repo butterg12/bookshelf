@@ -1,0 +1,62 @@
+plugins {
+    id 'org.springframework.boot' version '2.5.2'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id "com.github.node-gradle.node" version "3.1.0"
+    id 'java'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+node {
+    version = '14.16.1'
+    npmVersion = '7.18.1'
+    download = true
+    workDir = file("${project.buildDir}/nodejs")
+    npmWorkDir = file("${project.buildDir}/npm")
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'mysql:mysql-connector-java'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+task deleteVueArtifact(type: Delete) {
+    delete "src/main/resources/static"
+}
+
+task frontNpmInstall(type: NpmTask) {
+    workingDir = file("${project.projectDir}/src/frontend")
+    args = ['install']
+}
+
+task npmBuild(type: NpmTask, dependsOn: ['deleteVueArtifact', 'frontNpmInstall']) {
+    workingDir = file("${project.projectDir}/src/frontend")
+    args = ['run', 'build']
+}
+
+test {
+    useJUnitPlatform()
+}
+
+processResources.dependsOn 'npmBuild'
